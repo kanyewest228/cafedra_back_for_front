@@ -1,0 +1,411 @@
+{
+  "info": {
+    "_postman_id": "a5e9f8c0-3b21-4f81-9b12-52sprint0001",
+    "name": "Books & Scripts Platform API (Sprint 52)",
+    "description": "Postman-коллекция для тестирования REST API платформы совместного написания сценариев и книг (Laravel 13).\n\nВключает:\n- Пагинацию книг по 8 элементов\n- Поиск и CRUD для книг\n- Рекурсивное дерево комментариев\n- Фильтрацию комментариев по разделам (lore, alternative, edit, question)\n- Добавление корневых комментариев и вложенных ответов (children)\n- Удаление веток",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "bookId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "commentId",
+      "value": "101",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Books (Книги)",
+      "item": [
+        {
+          "name": "1. Список книг (пагинация по 8 штук)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/books?page=1&per_page=8",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "books"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Номер страницы"
+                },
+                {
+                  "key": "per_page",
+                  "value": "8",
+                  "description": "Количество книг на страницу (по ТЗ: 8)"
+                }
+              ]
+            },
+            "description": "Получение списка книг с пагинацией по 8 элементов."
+          },
+          "response": []
+        },
+        {
+          "name": "2. Список книг (Страница 2)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/books?page=2&per_page=8",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "books"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "2"
+                },
+                {
+                  "key": "per_page",
+                  "value": "8"
+                }
+              ]
+            },
+            "description": "Получение второй страницы списка книг."
+          },
+          "response": []
+        },
+        {
+          "name": "3. Поиск книг по названию / автору",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/books?search=каштака",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "books"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "каштака",
+                  "description": "Поисковый запрос"
+                }
+              ]
+            },
+            "description": "Поиск по ключевым словам среди заголовков, авторов и описаний."
+          },
+          "response": []
+        },
+        {
+          "name": "4. Детальная информация о книге",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/books/{{bookId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "books", "{{bookId}}"]
+            },
+            "description": "Получение полных данных о конкретной книге, включая full_text."
+          },
+          "response": []
+        },
+        {
+          "name": "5. Создать книгу",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Хроники пустоты\",\n  \"author\": \"Михаил Булгаков\",\n  \"description\": \"Мистический роман о событиях в весенней Москве.\",\n  \"full_text\": \"В час жаркого весеннего заката на Патриарших прудах появились двое граждан...\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/books",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "books"]
+            },
+            "description": "Создание новой книги в системе."
+          },
+          "response": []
+        },
+        {
+          "name": "6. Обновить книгу",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Тени забытого мира (2-е издание)\",\n  \"description\": \"Обновленное расширенное описание сюжета.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/books/{{bookId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "books", "{{bookId}}"]
+            },
+            "description": "Частичное или полное обновление данных книги."
+          },
+          "response": []
+        },
+        {
+          "name": "7. Удалить книгу",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/books/{{bookId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "books", "{{bookId}}"]
+            },
+            "description": "Удаление книги и каскадное удаление всех связанных комментариев."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Comments (Комментарии)",
+      "item": [
+        {
+          "name": "1. Дерево комментариев книги (все категории)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/books/{{bookId}}/comments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "books", "{{bookId}}", "comments"]
+            },
+            "description": "Получение полного древовидного списка комментариев книги с вложенными children."
+          },
+          "response": []
+        },
+        {
+          "name": "2. Фильтр комментариев: Лор (lore)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/books/{{bookId}}/comments?category=lore",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "books", "{{bookId}}", "comments"],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "lore",
+                  "description": "Раздел: Лор"
+                }
+              ]
+            },
+            "description": "Древовидные комментарии из раздела 'Лор'."
+          },
+          "response": []
+        },
+        {
+          "name": "3. Фильтр комментариев: Альтернатива (alternative)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/books/{{bookId}}/comments?category=alternative",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "books", "{{bookId}}", "comments"],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "alternative",
+                  "description": "Раздел: Альтернатива"
+                }
+              ]
+            },
+            "description": "Древовидные комментарии из раздела 'Альтернативное развитие сюжета'."
+          },
+          "response": []
+        },
+        {
+          "name": "4. Фильтр комментариев: Правка (edit)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/books/{{bookId}}/comments?category=edit",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "books", "{{bookId}}", "comments"],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "edit",
+                  "description": "Раздел: Правка"
+                }
+              ]
+            },
+            "description": "Древовидные комментарии из раздела 'Правка'."
+          },
+          "response": []
+        },
+        {
+          "name": "5. Фильтр комментариев: Вопрос (question)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/books/{{bookId}}/comments?category=question",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "books", "{{bookId}}", "comments"],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "question",
+                  "description": "Раздел: Вопрос"
+                }
+              ]
+            },
+            "description": "Древовидные комментарии из раздела 'Вопрос'."
+          },
+          "response": []
+        },
+        {
+          "name": "6. Добавить корневой комментарий",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"parent_id\": null,\n  \"category\": \"question\",\n  \"author\": \"Алексей К.\",\n  \"text\": \"Планируется ли продолжение арки с древним артефактом?\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/books/{{bookId}}/comments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "books", "{{bookId}}", "comments"]
+            },
+            "description": "Создание нового обсуждения верхнего уровня."
+          },
+          "response": []
+        },
+        {
+          "name": "7. Ответить на комментарий (вложенный ответ)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"parent_id\": 101,\n  \"category\": \"lore\",\n  \"author\": \"Иван И.\",\n  \"text\": \"Это потомок древнего рода хранителей кристалла.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/books/{{bookId}}/comments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "books", "{{bookId}}", "comments"]
+            },
+            "description": "Создание ответа на существующий комментарий (передается parent_id)."
+          },
+          "response": []
+        },
+        {
+          "name": "8. Удалить комментарий",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/comments/{{commentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "comments", "{{commentId}}"]
+            },
+            "description": "Удаление комментария и всех его дочерних ответов (каскадно)."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
